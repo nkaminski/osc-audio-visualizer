@@ -4,10 +4,10 @@
 # 'make clean'  removes all .o and executable files
 #
 
-CFLAGS = -Wall -DUSE_KISS_FFT --std=c++11
-INCLUDES = $(shell pkg-config --cflags libpulse-simple) -I./BTrack/src -I./BTrack/libs/kiss_fft130
+CFLAGS = -Wall -O3 -DUSE_KISS_FFT --std=c++11
+INCLUDES = -I./BTrack/src -I./BTrack/libs/kiss_fft130
 LFLAGS = -LBTrack/src -LBTrack/libs/kiss_fft130
-LIBS = $(shell pkg-config --libs libpulse-simple) $(shell pkg-config --libs samplerate) -lbtrack -lkissfft -lmatrix_creator_hal
+LIBS = $(shell pkg-config --libs samplerate) -lbtrack -lkissfft -lmatrix_creator_hal
 
 SRCS = main.cpp matrix.cpp
 
