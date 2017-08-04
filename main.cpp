@@ -57,8 +57,8 @@ int main(int argc, char*argv[]) {
 
       /* Compute avg. amplitude in dB if we have seen AMPLITUDE_WINDOW FFT windows */
       if(slow_acc_ctr == AMPLITUDE_WINDOW){
-         slow_acc = 10*log10(slow_acc / (AMPLITUDE_WINDOW * (BUFSIZE/2)));
-         amplitude=slow_acc + 35;
+         slow_acc = 20*log10(slow_acc / (AMPLITUDE_WINDOW * (BUFSIZE/2)));
+         amplitude=slow_acc + 45;
          if(amplitude > 35)
             led_count = 35;
          else if(amplitude < 0)
