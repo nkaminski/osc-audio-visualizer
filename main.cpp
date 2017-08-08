@@ -9,7 +9,7 @@
 #include "matrix.h"
 #define BUFSIZE 2048
 #define AMPLITUDE_WINDOW 2
-
+#define ROTATE_SPEED 1
 int main(int argc, char*argv[]) {
    BTrack b;
    Matrix mat;
@@ -17,7 +17,8 @@ int main(int argc, char*argv[]) {
    double slow_acc=0;
    float amplitude;
    int led_count=0;
-   int slow_acc_ctr=0;
+   unsigned int rotation=0;
+   unsigned int slow_acc_ctr=0;
    unsigned int ctr=0;
    ssize_t nread, cur_read;
    for (;;) {
@@ -68,25 +69,36 @@ int main(int argc, char*argv[]) {
          slow_acc_ctr=0;
          slow_acc=0;
       }
-
       /* Compute FFT and search for beats */
       b.processAudioFrame(bufdbl);
       if (b.beatDueInCurrentFrame()) {
+         rotation = (rotation+ROTATE_SPEED)%35;
          ctr++;
-         if(ctr==3)
-            ctr=0;
       }
 
       /* Set the LED color based on beat and amplitude */
       switch(ctr){
          case 0:
-            mat.setEverloopCircular(led_count,255,0,0,0);                   
+            mat.setEverloopCircular(led_count,rotation,255,0,0,0);                   
             break;
          case 1:
-            mat.setEverloopCircular(led_count,0,255,0,0);                   
+            mat.setEverloopCircular(led_count,rotation,255,0,255,0);                   
             break;
          case 2:
-            mat.setEverloopCircular(led_count,0,0,255,0);                   
+            mat.setEverloopCircular(led_count,rotation,0,255,255,0);                   
+            break;
+         case 3:
+            mat.setEverloopCircular(led_count,rotation,0,255,0,0);                   
+            break;
+         case 4:
+            mat.setEverloopCircular(led_count,rotation,0,0,255,0);                   
+            break;
+         case 5:
+            mat.setEverloopCircular(led_count,rotation,255,255,0,0);                   
+            break;
+         case 6:
+            mat.setEverloopCircular(led_count,rotation,0,0,0,255);
+            ctr=0;
       } 
    }
    return 0;

@@ -13,7 +13,7 @@ class Matrix{
 		Matrix();
 		void setEverloop(hal::EverloopImage&);
         	void setEverloopAll(unsigned char, unsigned char, unsigned char, unsigned char);
-        	void setEverloopCircular(unsigned int, unsigned char, unsigned char, unsigned char, unsigned char);
+        	void setEverloopCircular(unsigned int, unsigned int, unsigned char, unsigned char, unsigned char, unsigned char);
 	private:
 		bool isInitialized;
   		hal::WishboneBus bus;
