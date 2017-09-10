@@ -13,7 +13,7 @@ Once the system is installed, the easiest means of getting things running is to 
 
     sudo apt-get install pianobar
 
-Furthermore, since the version of pianobar in the Debian repositories is out of date, pianobar will refuse to interact with pandora.com due to an incorrect certificate. The fix for such is to either build the most recent version of pianobar form source or create the file "~/.config/pianobar/config" and place the following lines inside of such:
+Furthermore, since the version of pianobar in the Debian repositories is out of date, pianobar will refuse to interact with pandora.com due to an incorrect certificate. The fix for such is to either build the most recent version of pianobar from source or create the file "~/.config/pianobar/config" and place the following lines inside of such:
 
         tls_fingerprint = FC2E6AF49FC63AEDAD1078DC22D1185B809E7534
         user = youremail@example.com
