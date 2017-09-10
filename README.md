@@ -23,7 +23,7 @@ If you would like to use this system with audio files you have locally, you can 
 
     sudo apt-get install cmus
 
-Please refer to cmus' documentation for usage since there are far tom many options and cases to list here.
+Please refer to cmus' documentation for usage since there are far to many options and cases to list here.
 
 Finally, be aware that these are merely suggestions and that any graphical or command line program capable of playing audio should work with this system.
 
@@ -60,7 +60,8 @@ Should you which to revert to the original ALSA configuration and no longer proc
         sudo mv /etc/asound.conf.bak /etc/asound.conf
 
 # Hacking
-    The behavior of this audio processing system can be modified in a series of ways. First, this program can be used as a template for a more advanced system interfacing with the MATRIX creator everloop and/or performing real-time audio beat detection. Additionally, thereare a few constants that can be edited by the user that will change the behavior of the visualization.
-    * On line 11 of main.cpp, AMPLITUDE\_WINDOW, which defines how many beat detection windows the average power in dB is computed over. Larger values will result in a less sensitive and slower length change of the segment while smaller values will result in faster reaction to changes in volume.
-    * On line 12 of main.cpp ROTATE\_SPEED defines how many LED positions the arc is advanced during each beat.
-    * From line 80 to the end of main.cpp, the last 4 arguments to setEverloopCircular represent the R, G, B and W values of each of the colors displayed and can be modified to change such colors.
+The behavior of this audio processing system can be modified in a series of ways. First, this program can be used as a template for a more advanced system interfacing with the MATRIX creator everloop and/or performing real-time audio beat detection. Additionally, thereare a few constants that can be edited by the user that will change the behavior of the visualization.
+
+* On line 11 of main.cpp, AMPLITUDE_WINDOW, which defines how many beat detection windows the average power in dB is computed over. Larger values will result in a less sensitive and slower length change of the segment while smaller values will result in faster reaction to changes in volume.
+* On line 12 of main.cpp ROTATE_SPEED defines how many LED positions the arc is advanced during each beat.
+* From line 80 to the end of main.cpp, the last 4 arguments to setEverloopCircular represent the R, G, B and W values of each of the colors displayed and can be modified to change such colors.
