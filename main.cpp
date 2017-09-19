@@ -17,8 +17,8 @@ typedef struct {
     int osc_port;
     char const *osc_beatpath;
     char const *osc_amplpath;
-    unsigned int minampl;
-    unsigned int maxampl;
+    double minampl;
+    double maxampl;
     double gain;
     unsigned int amplwind;
 } options_t;
@@ -35,8 +35,8 @@ void print_startup(options_t *opt){
     OSC port = %d\n \
     OSC beat info output path = %s\n \
     OSC amplitude output path = %s\n \
-    Min amplitude = %d\n \
-    Max amplitude = %d\n \
+    Min amplitude = %f\n \
+    Max amplitude = %f\n \
     Input gain = %f\n \
     Amplitude window = %d (%d samples)\n\n \
 \n \
@@ -58,7 +58,7 @@ void print_usage(char* exename){
             -B OSC path to send beat info, default='/beat'\n \
             -A OSC path to send average amplitude, default='/amplitude'\n \
             -m Amplitude value corresponding to -infinity dB, default='0'\n \
-            -M Amplitude value corresponding to +10 dB (hard capped), default='255'\n \
+            -M Amplitude value corresponding to +10 dB (hard capped), default='1.0'\n \
             -G Gain applied to incoming audio, default=1.0\n \
             -W Amplitude averaging window size, default=2\n \
             -h Prints this message\n\n",exename);
@@ -72,7 +72,7 @@ int parse_arguments(options_t *opt, int argc, char **argv){
     opt->osc_beatpath="/beat";
     opt->osc_amplpath="/amplitude";
     opt->minampl=0;
-    opt->maxampl=255;
+    opt->maxampl=1;
     opt->amplwind=2;
     opt->gain=1;
     
@@ -97,10 +97,10 @@ int parse_arguments(options_t *opt, int argc, char **argv){
                 opt->osc_amplpath = optarg;
                 break;
             case 'm':
-                opt->minampl = atoi(optarg);
+                opt->minampl = atof(optarg);
                 break;
             case 'M':
-                opt->maxampl = atoi(optarg);
+                opt->maxampl = atof(optarg);
                 break;
             case 'G':
                 opt->gain = atof(optarg);
@@ -155,7 +155,7 @@ int main(int argc, char*argv[]) {
     options_t options;
     int i,j,rv;
     ssize_t nread;
-    double slow_acc=0;
+    double slow_acc=0, db=-50;
     float amplitude;
     unsigned int slow_acc_ctr=0;
     /* Initialize and parse args */
@@ -200,18 +200,19 @@ int main(int argc, char*argv[]) {
                 slow_acc = -60;
             else if(slow_acc > 0)
                 slow_acc = 0;
+            db=slow_acc;
             amplitude=lin_map<double>(slow_acc,-60,0,options.minampl,options.maxampl);
 
-            lo_addr.send(options.osc_amplpath,"i",(int)amplitude);
+            lo_addr.send(options.osc_amplpath,"f",amplitude);
             slow_acc_ctr=0;
             slow_acc=0;
         }
         /* Compute FFT and search for beats */
         b.processAudioFrame(bufdbl);
-        if (b.beatDueInCurrentFrame()) {
+        if (b.beatDueInCurrentFrame() && db > -60) {
             /* Handle a beat here */
-                lo_addr.send(options.osc_beatpath,"i",255);
-                lo_addr.send(options.osc_beatpath,"i",0);
+                lo_addr.send(options.osc_beatpath,"f",1.0);
+                lo_addr.send(options.osc_beatpath,"f",0.0);
         }
     }
     return 0;
