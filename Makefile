@@ -4,19 +4,19 @@
 # 'make clean'  removes all .o and executable files
 #
 
-CFLAGS = -Wall -O3 -DUSE_KISS_FFT --std=c++11
+CFLAGS = -Wall -O3 -DUSE_KISS_FFT --std=gnu++11
 INCLUDES = -I./BTrack/src -I./BTrack/libs/kiss_fft130
 LFLAGS = -LBTrack/src -LBTrack/libs/kiss_fft130
-LIBS = $(shell pkg-config --libs samplerate) -lbtrack -lkissfft -lmatrix_creator_hal
+LIBS = $(shell pkg-config --libs samplerate) -lbtrack -lkissfft -llo
 
-SRCS = main.cpp matrix.cpp
+SRCS = main.cpp
 
 # define the C++ object files 
 
 OBJS = $(SRCS:.cpp=.o)
 
 # define the executable file 
-MAIN = audio-proc
+MAIN = osc-audio-proc
 
 #
 # The following part of the makefile is generic. 
