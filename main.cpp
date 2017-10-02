@@ -29,7 +29,7 @@ T lin_map (T x, T in_min, T in_max, T out_min, T out_max) {
 }
 
 void print_startup(options_t *opt){
-    printf("\n---osc-audio-visualizer--\n\n \
+    printf("\n---osc-audio-visualizer---\n\n \
     Running with input parameters: \n \
     OSC address = %s\n \
     OSC port = %d\n \
