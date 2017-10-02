@@ -21,6 +21,7 @@ typedef struct {
     double maxampl;
     double gain;
     unsigned int amplwind;
+    double noisefloor;
 } options_t;
 
 template <class T>
@@ -38,7 +39,8 @@ void print_startup(options_t *opt){
     Min amplitude = %f\n \
     Max amplitude = %f\n \
     Input gain = %f\n \
-    Amplitude window = %d (%d samples)\n\n \
+    Amplitude window = %d (%d samples)\n \
+    Noise floor = %f dB\n\n \
 \n \
     This program is free software: you can redistribute it and/or modify\n \
     it under the terms of the GNU General Public License as published by\n \
@@ -48,7 +50,7 @@ void print_startup(options_t *opt){
     This program is distributed in the hope that it will be useful,\n \
     but WITHOUT ANY WARRANTY; without even the implied warranty of\n \
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n \
-    GNU General Public License for more details.",opt->osc_addr,opt->osc_port,opt->osc_beatpath,opt->osc_amplpath,opt->minampl,opt->maxampl,opt->gain,opt->amplwind,opt->amplwind*BUFSIZE);
+    GNU General Public License for more details.",opt->osc_addr,opt->osc_port,opt->osc_beatpath,opt->osc_amplpath,opt->minampl,opt->maxampl,opt->gain,opt->amplwind,opt->amplwind*BUFSIZE,opt->noisefloor);
 }
 
 void print_usage(char* exename){
@@ -58,6 +60,7 @@ void print_usage(char* exename){
             -B OSC path to send beat info, default='/beat'\n \
             -A OSC path to send average amplitude, default='<none>'\n \
             -m Amplitude value corresponding to -infinity dB, default='0'\n \
+            -n Noise floor for beat info to be output, default='-60'\n \
             -M Amplitude value corresponding to +10 dB (hard capped), default='1.0'\n \
             -G Gain applied to incoming audio, default=1.0\n \
             -W Amplitude averaging window size, default=2\n \
@@ -75,12 +78,13 @@ int parse_arguments(options_t *opt, int argc, char **argv){
     opt->maxampl=1;
     opt->amplwind=2;
     opt->gain=1;
-    
+    opt->noisefloor=-60.0;
+
     /* Parse arguments */
     int c;
     int cnt=0;
     opterr = 0;
-    while ((c = getopt (argc, argv, "ha:p:B:A:m:M:G:W:")) != -1){
+    while ((c = getopt (argc, argv, "ha:p:B:A:m:n:M:G:W:")) != -1){
         cnt++;
         switch (c)
         {
@@ -105,6 +109,9 @@ int parse_arguments(options_t *opt, int argc, char **argv){
             case 'G':
                 opt->gain = atof(optarg);
                 break;
+            case 'n':
+                opt->noisefloor = stof(optarg);
+                break;
             case 'W':
                 opt->amplwind = atoi(optarg);
                 break;
@@ -112,7 +119,7 @@ int parse_arguments(options_t *opt, int argc, char **argv){
                 print_usage(argv[0]);
                 exit(EXIT_SUCCESS);
             case '?':
-                if (strchr("apBAmMGW",optopt) != NULL)
+                if (strchr("apBAnmMGW",optopt) != NULL)
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
                 else if (isprint (optopt))
                     fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -155,7 +162,7 @@ int main(int argc, char*argv[]) {
     options_t options;
     int i,j,rv;
     ssize_t nread;
-    double slow_acc=0, db=-50;
+    double slow_acc=0, db=noisefloor+10.0;;
     float amplitude;
     unsigned int slow_acc_ctr=0;
     /* Initialize and parse args */
@@ -196,14 +203,14 @@ int main(int argc, char*argv[]) {
         /* Compute avg. amplitude in dB if we have seen AMPLITUDE_WINDOW FFT windows */
         if(slow_acc_ctr == options.amplwind){
             slow_acc = 20*log10(slow_acc / (options.amplwind * (BUFSIZE)));
-            if (slow_acc < -60)
-                slow_acc = -60;
+            if (slow_acc < noisefloor)
+                slow_acc = noisefloor;
             else if(slow_acc > 0)
                 slow_acc = 0;
             db=slow_acc;
             /* Are we to output the amplitude info? */
             if(options.osc_amplpath[0] != '\0'){
-                amplitude=lin_map<double>(slow_acc,-60,0,options.minampl,options.maxampl);
+                amplitude=lin_map<double>(slow_acc,noisefloor,0,options.minampl,options.maxampl);
                 lo_addr.send(options.osc_amplpath,"f",amplitude);
             }
             slow_acc_ctr=0;
@@ -213,7 +220,7 @@ int main(int argc, char*argv[]) {
         if(options.osc_beatpath[0] != '\0'){
             /* Compute FFT and search for beats */
             b.processAudioFrame(bufdbl);
-            if (b.beatDueInCurrentFrame() && db > -60) {
+            if (b.beatDueInCurrentFrame() && db > options.noisefloor) {
                 /* Handle a beat here */
                     lo_addr.send(options.osc_beatpath,"f",1.0);
                     lo_addr.send(options.osc_beatpath,"f",0.0);

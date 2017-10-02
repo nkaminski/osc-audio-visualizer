@@ -7,7 +7,7 @@
 CFLAGS = -Wall -O3 -DUSE_KISS_FFT --std=gnu++11
 INCLUDES = -I./BTrack/src -I./BTrack/libs/kiss_fft130
 LFLAGS = -LBTrack/src -LBTrack/libs/kiss_fft130
-LIBS = $(shell pkg-config --libs samplerate) -lbtrack -lkissfft -llo
+LIBS = -lbtrack $(shell pkg-config --libs samplerate) -lkissfft -llo
 
 SRCS = main.cpp
 
