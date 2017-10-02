@@ -56,7 +56,7 @@ void print_usage(char* exename){
             -a OSC address, default='localhost'\n \
             -p OSC port, default='9000'\n \
             -B OSC path to send beat info, default='/beat'\n \
-            -A OSC path to send average amplitude, default='/amplitude'\n \
+            -A OSC path to send average amplitude, default='<none>'\n \
             -m Amplitude value corresponding to -infinity dB, default='0'\n \
             -M Amplitude value corresponding to +10 dB (hard capped), default='1.0'\n \
             -G Gain applied to incoming audio, default=1.0\n \
@@ -70,7 +70,7 @@ int parse_arguments(options_t *opt, int argc, char **argv){
     opt->osc_addr="localhost";
     opt->osc_port=9000;
     opt->osc_beatpath="/beat";
-    opt->osc_amplpath="/amplitude";
+    opt->osc_amplpath="";
     opt->minampl=0;
     opt->maxampl=1;
     opt->amplwind=2;
@@ -201,18 +201,23 @@ int main(int argc, char*argv[]) {
             else if(slow_acc > 0)
                 slow_acc = 0;
             db=slow_acc;
-            amplitude=lin_map<double>(slow_acc,-60,0,options.minampl,options.maxampl);
-
-            lo_addr.send(options.osc_amplpath,"f",amplitude);
+            /* Are we to output the amplitude info? */
+            if(options.osc_amplpath[0] != '\0'){
+                amplitude=lin_map<double>(slow_acc,-60,0,options.minampl,options.maxampl);
+                lo_addr.send(options.osc_amplpath,"f",amplitude);
+            }
             slow_acc_ctr=0;
             slow_acc=0;
         }
-        /* Compute FFT and search for beats */
-        b.processAudioFrame(bufdbl);
-        if (b.beatDueInCurrentFrame() && db > -60) {
-            /* Handle a beat here */
-                lo_addr.send(options.osc_beatpath,"f",1.0);
-                lo_addr.send(options.osc_beatpath,"f",0.0);
+        /* Are we to output beat info? */
+        if(options.osc_beatpath[0] != '\0'){
+            /* Compute FFT and search for beats */
+            b.processAudioFrame(bufdbl);
+            if (b.beatDueInCurrentFrame() && db > -60) {
+                /* Handle a beat here */
+                    lo_addr.send(options.osc_beatpath,"f",1.0);
+                    lo_addr.send(options.osc_beatpath,"f",0.0);
+            }
         }
     }
     return 0;
