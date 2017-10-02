@@ -203,14 +203,14 @@ int main(int argc, char*argv[]) {
         /* Compute avg. amplitude in dB if we have seen AMPLITUDE_WINDOW FFT windows */
         if(slow_acc_ctr == options.amplwind){
             slow_acc = 20*log10(slow_acc / (options.amplwind * (BUFSIZE)));
-            if (slow_acc < noisefloor)
-                slow_acc = noisefloor;
+            if (slow_acc < options.noisefloor)
+                slow_acc = options.noisefloor;
             else if(slow_acc > 0)
                 slow_acc = 0;
             db=slow_acc;
             /* Are we to output the amplitude info? */
             if(options.osc_amplpath[0] != '\0'){
-                amplitude=lin_map<double>(slow_acc,noisefloor,0,options.minampl,options.maxampl);
+                amplitude=lin_map<double>(slow_acc,options.noisefloor,0,options.minampl,options.maxampl);
                 lo_addr.send(options.osc_amplpath,"f",amplitude);
             }
             slow_acc_ctr=0;
