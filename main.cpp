@@ -162,7 +162,7 @@ int main(int argc, char*argv[]) {
     options_t options;
     int i,j,rv;
     ssize_t nread;
-    double slow_acc=0, db=noisefloor+10.0;;
+    double slow_acc=0, db=-INFINITY;
     float amplitude;
     unsigned int slow_acc_ctr=0;
     /* Initialize and parse args */
