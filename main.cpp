@@ -110,7 +110,7 @@ int parse_arguments(options_t *opt, int argc, char **argv){
                 opt->gain = atof(optarg);
                 break;
             case 'n':
-                opt->noisefloor = stof(optarg);
+                opt->noisefloor = atof(optarg);
                 break;
             case 'W':
                 opt->amplwind = atoi(optarg);
