@@ -22,6 +22,7 @@ typedef struct {
     double gain;
     unsigned int amplwind;
     double noisefloor;
+    char quiet;
 } options_t;
 
 template <class T>
@@ -64,6 +65,7 @@ void print_usage(char* exename){
             -M Amplitude value corresponding to +10 dB (hard capped), default='1.0'\n \
             -G Gain applied to incoming audio, default=1.0\n \
             -W Amplitude averaging window size, default=2\n \
+            -q Quiet mode, do not print the startup message\n \
             -h Prints this message\n\n",exename);
 }
 
@@ -79,18 +81,22 @@ int parse_arguments(options_t *opt, int argc, char **argv){
     opt->amplwind=2;
     opt->gain=1;
     opt->noisefloor=-60.0;
+    opt->quiet=0;
 
     /* Parse arguments */
     int c;
     int cnt=0;
     opterr = 0;
-    while ((c = getopt (argc, argv, "ha:p:B:A:m:n:M:G:W:")) != -1){
+    while ((c = getopt (argc, argv, "hqa:p:B:A:m:n:M:G:W:")) != -1){
         cnt++;
         switch (c)
         {
             case 'a':
                 opt->osc_addr = optarg;
                 break;
+            case 'q':
+		opt->quiet = 1;
+		break;
             case 'p':
                 opt->osc_port = atoi(optarg);
                 break;
@@ -169,7 +175,8 @@ int main(int argc, char*argv[]) {
     if((rv=parse_arguments(&options, argc, argv)) < 0)
         return -rv;
     /* Print the startup message */
-    print_startup(&options);
+    if(!options.quiet)
+    	print_startup(&options);
 
     /* Initialize liblo */
     lo::Address lo_addr(options.osc_addr, options.osc_port);
