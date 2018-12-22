@@ -11,6 +11,7 @@ In order to use this audio visualization system, please install the dependencies
 
 # Requirements
  * libsamplerate
+ * liblo
  * GNU Make
  * C and C++ compiler (tested with gcc and g++)
 
